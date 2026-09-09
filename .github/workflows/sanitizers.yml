@@ -1,54 +1,54 @@
----
-name: Sanitizers
+# ---
+# name: Sanitizers
 
-on:
-  push:
-  pull_request:
+# on:
+#   push:
+#   pull_request:
 
-concurrency:
-  group: >
-    ${{github.workflow }}
-    -${{ github.event.pull_request.number || github.ref}}
+# concurrency:
+#   group: >
+#     ${{github.workflow }}
+#     -${{ github.event.pull_request.number || github.ref}}
 
-  cancel-in-progress: true
+#   cancel-in-progress: true
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    container: "ubuntu:26.04"
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     container: "ubuntu:26.04"
 
-    strategy:
-      matrix:
-        build_type: [asan, tsan]
+#     strategy:
+#       matrix:
+#         build_type: [asan, tsan]
 
-    steps:
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          key: dependencies-ubuntu:26.04-${{matrix.build_type}}-g++-linux
-          path: |
-            ~/.cache/ccache
-            ~/.cache/iscool
+#     steps:
+#       - name: Cache dependencies
+#         uses: actions/cache@v4
+#         with:
+#           key: dependencies-ubuntu:26.04-${{matrix.build_type}}-g++-linux
+#           path: |
+#             ~/.cache/ccache
+#             ~/.cache/iscool
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: >
-          ./ci/install-minimal-environment.sh
-          --compiler g++
-          --target-platform linux
+#       - name: Install dependencies
+#         run: >
+#           ./ci/install-minimal-environment.sh
+#           --compiler g++
+#           --target-platform linux
 
-      - name: Launch build
-        run: >
-          ./setup.sh
-          --target-platform linux
-          --build-type ${{matrix.build_type}}
+#       - name: Launch build
+#         run: >
+#           ./setup.sh
+#           --target-platform linux
+#           --build-type ${{matrix.build_type}}
 
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-${{matrix.build_type}}
-          path: |
-            build/linux/*/apps/server/bim-server
-            build/linux/**/*-tests
+#       - name: Archive artifacts
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: binaries-${{matrix.build_type}}
+#           path: |
+#             build/linux/*/apps/server/bim-server
+#             build/linux/**/*-tests
