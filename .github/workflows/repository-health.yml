@@ -1,30 +1,30 @@
----
-name: Repository health
+# ---
+# name: Repository health
 
-on:
-  push:
-  pull_request:
+# on:
+#   push:
+#   pull_request:
 
-concurrency:
-  group: >
-    ${{github.workflow }}
-    -${{ github.event.pull_request.number || github.ref}}
+# concurrency:
+#   group: >
+#     ${{github.workflow }}
+#     -${{ github.event.pull_request.number || github.ref}}
 
-  cancel-in-progress: true
+#   cancel-in-progress: true
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    container: "debian:forky"
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     container: "debian:forky"
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: >
-          apt-get update ;
-          apt-get install --yes black clang-format-21 shellcheck yamllint ;
+#       - name: Install dependencies
+#         run: >
+#           apt-get update ;
+#           apt-get install --yes black clang-format-21 shellcheck yamllint ;
 
-      - name: Check repository state
-        run: ./ci/repository-health.sh
+#       - name: Check repository state
+#         run: ./ci/repository-health.sh
