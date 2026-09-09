@@ -1,77 +1,77 @@
----
-name: Android
+# ---
+# name: Android
 
-on:
-  push:
-  pull_request:
+# on:
+#   push:
+#   pull_request:
 
-concurrency:
-  group: >
-    ${{github.workflow }}
-    -${{ github.event.pull_request.number || github.ref}}
+# concurrency:
+#   group: >
+#     ${{github.workflow }}
+#     -${{ github.event.pull_request.number || github.ref}}
 
-  cancel-in-progress: true
+#   cancel-in-progress: true
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    container: "ubuntu:26.04"
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     container: "ubuntu:26.04"
 
-    strategy:
-      matrix:
-        build_type: [debug, release]
+#     strategy:
+#       matrix:
+#         build_type: [debug, release]
 
-    steps:
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          key: dependencies-ubuntu:26.04-${{matrix.build_type}}-g++-android
-          path: |
-            ~/.cache/ccache
-            ~/.cache/iscool
-            ~/.gradle/caches
+#     steps:
+#       - name: Cache dependencies
+#         uses: actions/cache@v4
+#         with:
+#           key: dependencies-ubuntu:26.04-${{matrix.build_type}}-g++-android
+#           path: |
+#             ~/.cache/ccache
+#             ~/.cache/iscool
+#             ~/.gradle/caches
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Free disk space
-        run: >
-          ./ci/clean-up-github-runner.sh
+#       - name: Free disk space
+#         run: >
+#           ./ci/clean-up-github-runner.sh
 
-      - name: Install dependencies
-        run: >
-          ./ci/install-minimal-environment.sh
-          --compiler g++
-          --target-platform android
-          ;
+#       - name: Install dependencies
+#         run: >
+#           ./ci/install-minimal-environment.sh
+#           --compiler g++
+#           --target-platform android
+#           ;
 
-      - if: ${{matrix.build_type == 'debug'}}
-        name: Initialize debug keystore
-        run: >
-          ./ci/initialize-android-keystore.sh
-          --build-type ${{matrix.build_type}}
-          --output-dir ./android/app/
-          ;
+#       - if: ${{matrix.build_type == 'debug'}}
+#         name: Initialize debug keystore
+#         run: >
+#           ./ci/initialize-android-keystore.sh
+#           --build-type ${{matrix.build_type}}
+#           --output-dir ./android/app/
+#           ;
 
-      - if: ${{matrix.build_type == 'release'}}
-        name: Initialize release keystore
-        env:
-          BIM_KEYSTORE_PASSWORD: ${{secrets.BIM_KEYSTORE_PASSWORD}}
-          BIM_RELEASE_KEYSTORE: ${{secrets.BIM_RELEASE_KEYSTORE}}
-        run: >
-          ./ci/initialize-android-keystore.sh
-          --build-type ${{matrix.build_type}}
-          --output-dir ./android/app/
-          ;
+#       - if: ${{matrix.build_type == 'release'}}
+#         name: Initialize release keystore
+#         env:
+#           BIM_KEYSTORE_PASSWORD: ${{secrets.BIM_KEYSTORE_PASSWORD}}
+#           BIM_RELEASE_KEYSTORE: ${{secrets.BIM_RELEASE_KEYSTORE}}
+#         run: >
+#           ./ci/initialize-android-keystore.sh
+#           --build-type ${{matrix.build_type}}
+#           --output-dir ./android/app/
+#           ;
 
-      - name: Launch build
-        run: >
-          ./setup.sh
-          --target-platform android
-          --build-type ${{matrix.build_type}}
+#       - name: Launch build
+#         run: >
+#           ./setup.sh
+#           --target-platform android
+#           --build-type ${{matrix.build_type}}
 
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-${{matrix.build_type}}
-          path: build/android/**/*.apk
+#       - name: Archive artifacts
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: android-${{matrix.build_type}}
+#           path: build/android/**/*.apk
