@@ -3,12 +3,12 @@ name: Configure, build, test.
 
 on:
   workflow_dispatch:
-concurrency:
-  group: >
-    ${{github.workflow }}
-    -${{ github.event.pull_request.number || github.ref}}
+# concurrency:
+#   group: >
+#     ${{github.workflow }}
+#     -${{ github.event.pull_request.number || github.ref}}
 
-  cancel-in-progress: true
+#   cancel-in-progress: true
 
 jobs:
   build:
@@ -20,8 +20,8 @@ jobs:
         # We want to test stable compilers (typically from Debian) and
         # recent compilers (typically from Ubuntu).
         container: ["debian:forky", "ubuntu:26.04"]
-        build_type: [debug]
-        compiler: [g++]
+        build_type: [release, debug]
+        compiler: [g++, clang-22]
         maybe_incremental: [--incremental, ""]
         exclude:
           - container: "debian:forky"
