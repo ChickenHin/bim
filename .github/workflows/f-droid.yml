@@ -1,65 +1,65 @@
----
-name: F-Droid Pre-Release
+# ---
+# name: F-Droid Pre-Release
 
-on:
-  push:
-  pull_request:
+# on:
+#   push:
+#   pull_request:
 
-concurrency:
-  group: >
-    ${{github.workflow }}
-    -${{ github.event.pull_request.number || github.ref}}
+# concurrency:
+#   group: >
+#     ${{github.workflow }}
+#     -${{ github.event.pull_request.number || github.ref}}
 
-  cancel-in-progress: true
+#   cancel-in-progress: true
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    container: "registry.gitlab.com/fdroid/fdroidserver:buildserver-trixie"
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     container: "registry.gitlab.com/fdroid/fdroidserver:buildserver-trixie"
 
-    steps:
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          key: dependencies-fdroid-debian:bookworm
-          path: |
-            ~/.cache/ccache
-            ~/.cache/iscool
-            ~/.gradle/caches
+#     steps:
+#       - name: Cache dependencies
+#         uses: actions/cache@v4
+#         with:
+#           key: dependencies-fdroid-debian:bookworm
+#           path: |
+#             ~/.cache/ccache
+#             ~/.cache/iscool
+#             ~/.gradle/caches
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Free disk space
-        run: >
-          ./ci/clean-up-github-runner.sh
+#       - name: Free disk space
+#         run: >
+#           ./ci/clean-up-github-runner.sh
 
-      - name: Install dependencies
-        run: >
-          ./ci/install-minimal-environment.sh
-          --compiler g++
-          --target-platform android
+#       - name: Install dependencies
+#         run: >
+#           ./ci/install-minimal-environment.sh
+#           --compiler g++
+#           --target-platform android
 
-      - name: Initialize release keystore
-        env:
-          BIM_KEYSTORE_PASSWORD: ${{secrets.BIM_KEYSTORE_PASSWORD}}
-          BIM_RELEASE_KEYSTORE: ${{secrets.BIM_RELEASE_KEYSTORE}}
-        run: >
-          ./ci/initialize-android-keystore.sh
-          --build-type release
-          --output-dir ./android/app/
+#       - name: Initialize release keystore
+#         env:
+#           BIM_KEYSTORE_PASSWORD: ${{secrets.BIM_KEYSTORE_PASSWORD}}
+#           BIM_RELEASE_KEYSTORE: ${{secrets.BIM_RELEASE_KEYSTORE}}
+#         run: >
+#           ./ci/initialize-android-keystore.sh
+#           --build-type release
+#           --output-dir ./android/app/
 
-      - name: Launch build
-        run: >
-          ./setup.sh
-          --target-platform android
-          --build-type release
-          --build-steps dependencies configure build
-          --foss-only
-          --product
+#       - name: Launch build
+#         run: >
+#           ./setup.sh
+#           --target-platform android
+#           --build-type release
+#           --build-steps dependencies configure build
+#           --foss-only
+#           --product
 
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-release-foss
-          path: build/android/**/*.apk
+#       - name: Archive artifacts
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: android-release-foss
+#           path: build/android/**/*.apk
